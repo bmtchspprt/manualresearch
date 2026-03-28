@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Manual Assistant Study</title>
+</head>
+<body>
+  <h2>Technical Manual Assistant</h2>
+
+  <div id="chat"></div>
+
+  <input id="input" placeholder="Ask a question..." />
+  <button onclick="send()">Send</button>
+
+  <br><br>
+
+  <button onclick="feedback('clear')">✅ Clear</button>
+  <button onclick="feedback('confused')">❌ Confused</button>
+
+  <script>
+    const sessionId = Date.now();
+
+    async function send() {
+      const input = document.getElementById("input");
+      const message = input.value;
+
+      document.getElementById("chat").innerHTML += `<p><b>You:</b> ${message}</p>`;
+
+      const res = await fetch("/chat", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ message, sessionId })
+      });
+
+      const data = await res.json();
+
+      document.getElementById("chat").innerHTML += `<p><b>GPT:</b> ${data.reply}</p>`;
+
+      input.value = "";
+    }
+
+    async function feedback(type) {
+      await fetch("/feedback", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ sessionId, type })
+      });
+    }
+  </script>
+</body>
+</html>
